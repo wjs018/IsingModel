@@ -86,8 +86,9 @@ def checkFlip(row, col, lattice, temp, J=1):
 
 
 def checkEnergyDiff(row, col, lattice, temp, J=1):
-    """Calculates the energy of a specified site in a lattice assuming
-    periodic boundary conditions.
+    """Calculates the energy difference of a specified site in a lattice 
+    assuming periodic boundary conditions. The difference is between being 
+    flipped and not being flipped.
 
     Inputs:
     row        row number of the chosen site
@@ -97,7 +98,7 @@ def checkEnergyDiff(row, col, lattice, temp, J=1):
     J          coupling constant between neighboring sites
 
     Output:
-    energy    the energy at the given site
+    energy    the energy difference at the given site
     """
 
     # Get number of rows and columns from lattice
@@ -118,7 +119,7 @@ if __name__ == '__main__':
 
     # Initialize lattice of a given size with random 1,-1
 
-    rows = 50
+    rows = 10
     cols = 50
     prob = 0.5
 
@@ -176,8 +177,19 @@ if __name__ == '__main__':
             lattice = checkFlip(row, col, lattice, kT, J=J)
 
         # Calculate magnetization for the time step
-
-        mag.append(abs(magnetization(lattice)) / float(rows * cols))
+        
+        currentMag = abs(magnetization(lattice)) / float(rows * cols)
+        mag.append(currentMag)
+        
+        # If we have saturated all the sites in one state or another, go ahead and cease simulation
+        
+        if currentMag == 1:
+            
+            # Absorbing state reached, end simulation
+            
+            print 'Homogenous state reached'
+            
+            break
       
     plt.ioff()
     plt.clf()
