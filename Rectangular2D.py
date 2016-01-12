@@ -34,7 +34,7 @@ def magnetization(lattice):
     return mag
 
 
-def checkFlip(row, col, lattice, temp, J=1):
+def checkFlip(row, col, lattice, temp, J=1, B=0, mu=1):
     """Goes through the Metropolis algorithm to determine whether or not to
     flip the spin at the specified site in the lattice.
 
@@ -44,6 +44,8 @@ def checkFlip(row, col, lattice, temp, J=1):
     lattice    the current lattice
     temp       the value for kT in our simulation
     J          coupling constant between neighboring sites
+    B          external magnetic field
+    mu         magnetic moment of the lattice site
 
 
     Output:
@@ -85,9 +87,9 @@ def checkFlip(row, col, lattice, temp, J=1):
             return lattice
 
 
-def checkEnergyDiff(row, col, lattice, temp, J=1):
-    """Calculates the energy difference of a specified site in a lattice 
-    assuming periodic boundary conditions. The difference is between being 
+def checkEnergyDiff(row, col, lattice, temp, J=1, B=0, mu=1):
+    """Calculates the energy difference of a specified site in a lattice
+    assuming periodic boundary conditions. The difference is between being
     flipped and not being flipped.
 
     Inputs:
@@ -96,6 +98,8 @@ def checkEnergyDiff(row, col, lattice, temp, J=1):
     lattice    the current lattice
     temp       the value for kT in our simulation
     J          coupling constant between neighboring sites
+    B          external magnetic field
+    mu         magnetic moment of the lattice site
 
     Output:
     energy    the energy difference at the given site
@@ -110,37 +114,106 @@ def checkEnergyDiff(row, col, lattice, temp, J=1):
     energy = 2 * J * lattice[row][col] * (lattice[(row + rows - 1) % rows][col]
                                           + lattice[row][(col + 1) % cols]
                                           + lattice[(row + 1) % rows][col]
-                                          + lattice[row][(col + cols - 1) % cols])
+                                          + lattice[row][(col + cols - 1) % cols]) + (
+                                          2 * B * mu * lattice[row][col])
 
     return energy
+
+def simulate(rows=100, cols=100, prob=0.5, kT=0.001, J=1, B=0, mu=1, tmax=5000):
+    """ This function runs a 2D rectangular lattice Ising model simulation and
+    returns the final magentization of the lattice as well as the end result of
+    the lattice.
+     
+    Inputs:
+     
+    rows       total number of rows in the simulated lattice
+    cols       total number of columns in the simulated lattice
+    prob       probability of spin 1 when initializing lattice
+    kT         the dimensionless temperature of the simulation
+    J          coupling constant between neighboring sites
+    B          external magnetic field
+    mu         magnetic moment of the lattice site
+    tmax       maximum number of time steps to simulate
+     
+     
+    Outputs:
+     
+    mag        ending normalized magnetization of the lattice (sign is kept)
+    lattice    final configuration of the lattice
+    """
+     
+    # Initialize our lattice
+     
+    lattice = initialize(rows, cols, prob)
+     
+    # Run our loop
+     
+    for t in range(0, tmax):
+         
+        for i in range(0, rows * cols):
+             
+            # Pick a random site on the lattice
+             
+            row = random.randint(0, rows - 1)
+            col = random.randint(0, cols - 1)
+ 
+            # Decide whether or not this site should be flipped
+ 
+            lattice = checkFlip(row, col, lattice, kT, J=J, B=B, mu=mu)
+             
+        # Check magnetization
+         
+        currentMag = abs(magnetization(lattice)) / float(rows * cols)
+         
+        # Check to see if all the sites are the same spin
+         
+        if currentMag == 1:
+ 
+            # Absorbing state reached, end simulation
+ 
+            break
+            
+    # Calculate normalized magnetization
+      
+    mag = magnetization(lattice) / float(rows * cols)
+     
+    return (mag, lattice)
 
 
 if __name__ == '__main__':
 
     # Initialize lattice of a given size with random 1,-1
 
-    rows = 10
-    cols = 50
-    prob = 0.5
+    rows=100
+    cols=100
+    prob=0.5
 
-    lattice = initialize(rows=rows, cols=cols, prob=prob)
+    lattice=initialize(rows=rows, cols=cols, prob=prob)
 
     # Set our kT value
 
-    kT = 0.003
-    
+    kT=0.003
+
     # Set our coupling constant
-    
-    J = 1
+
+    J=1
+
+    # Set the value of the external magnetic field
+
+    B=0
+
+    # Set the value of magnetic moment of our lattice sites
+
+    mu=1
 
     # Find magnetization of the lattice, <|M|>
 
-    mag = [abs(magnetization(lattice)) / float(rows * cols)]
-    
+    mag=[abs(magnetization(lattice)) / float(rows * cols)]
+
     # Plot our starting configuration
-    
+
     plt.ion()
-    
+
     plt.pcolormesh(lattice, cmap='winter')
     plt.axis('equal')
     plt.show()
@@ -148,17 +221,17 @@ if __name__ == '__main__':
     # Define maximum number of time steps where one time step is rows*cols
     # attempted flip events as well as the plot interval
 
-    tmax = 1000
-    plotInt = 50
+    tmax=1000
+    plotInt=50
 
     # Now we are ready to start our time loop
 
     for t in range(0, tmax):
-        
+
         # Occasionally plot our lattice
-        
+
         if t % plotInt == 0:
-            
+
             plt.pcolormesh(lattice, cmap='winter')
             plt.axis('equal')
             plt.draw()
@@ -169,28 +242,29 @@ if __name__ == '__main__':
 
             # First, pick a random site on our lattice
 
-            row = random.randint(0, rows - 1)
-            col = random.randint(0, cols - 1)
+            row=random.randint(0, rows - 1)
+            col=random.randint(0, cols - 1)
 
             # Decide whether or not this site should be flipped
 
-            lattice = checkFlip(row, col, lattice, kT, J=J)
+            lattice=checkFlip(row, col, lattice, kT, J=J, B=B, mu=mu)
 
         # Calculate magnetization for the time step
-        
-        currentMag = abs(magnetization(lattice)) / float(rows * cols)
+
+        currentMag=abs(magnetization(lattice)) / float(rows * cols)
         mag.append(currentMag)
-        
-        # If we have saturated all the sites in one state or another, go ahead and cease simulation
-        
+
+        # If we have saturated all the sites in one state or another, go ahead
+        # and cease simulation
+
         if currentMag == 1:
-            
+
             # Absorbing state reached, end simulation
-            
+
             print 'Homogenous state reached'
-            
+
             break
-      
+
     plt.ioff()
     plt.clf()
     plt.plot(mag)
