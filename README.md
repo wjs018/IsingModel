@@ -5,7 +5,7 @@ This is a simulation of the Ising Model of ferromagnetism. To learn more about t
 At the moment, this consists of two python programs:
 
 1. Rectangular2D.py - This does the heavy lifting of simulating a 2D lattice with up and down spins. The `simulate` function in this file can be used to perform a single simulation with user defined parameters. For descriptions of the parameters, check the function description in the file.
-2. MagnetizationDistribution.py - This can be used to perform many simulations to build up a distribution of what the resulting distribution of magnetizations looks like for a given set of parameter variations. The `__main__` function utilizes the `multiprocessing` module to perform these simulations in parallel using the defined `simulateParallel` function.
+2. MagnetizationDistribution.py - This can be used to perform many simulations to build up a distribution of what the resulting distribution of magnetizations looks like for a given set of parameter variations. The `__main__` function utilizes the `multiprocessing` module to perform these simulations in parallel using the defined `simulateParallel` function. An example of the output can be seen [here](http://i.imgur.com/b6e4LjU.png).
 
 ## Dependencies
 
