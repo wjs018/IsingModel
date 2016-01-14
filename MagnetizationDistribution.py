@@ -57,7 +57,7 @@ if __name__ == '__main__':
     
     # Make a vector of the temperatures to measure
     
-    kTs = np.linspace(0,4,num=10)
+    kTs = np.linspace(0,4,num=30)
     kTs[0] = 0.001
     
     # Initialize some variables
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     
     # Number of simulations to run at each kT
     
-    samples = 30
+    samples = 100
     
     # Initialize the array to store results
     
