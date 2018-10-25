@@ -261,7 +261,7 @@ if __name__ == '__main__':
 
             # Absorbing state reached, end simulation
 
-            print 'Homogenous state reached'
+            print('Homogenous state reached')
 
             break
 
